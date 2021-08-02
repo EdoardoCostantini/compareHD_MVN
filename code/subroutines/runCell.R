@@ -26,11 +26,28 @@ runCell <- function(rp, cond, parms, fs) {
 # Imputation --------------------------------------------------------------
 
   if(!cond$method %in% c("OG", "cca")){
-    if(cond$method %in% "blasso"){
+    if(cond$method == "norm.optimal"){
+      predmat <- make.predictorMatrix(data_miss)
+      predmat[, -unlist(parms$vmap_miss)] <- 0 # use only good predictors
+      mids_out <- mice(data_miss,
+                       method = "norm",
+                       predictorMatrix = predmat,
+                       m = parms$mice_ndt,
+                       maxit = parms$mice_iters,
+                       printFlag = TRUE)
+    }
+    if(cond$method == "blasso"){
       mids_out <- imputeBlasso(data_miss,
                                m = parms$blasso_ndt,
                                maxit = parms$blasso_iters)
-    } else {
+    }
+    if(cond$method %in%
+      c("durr.gaus",
+        "iurr.gaus",
+        "norm", # bridge
+        "pcr.boot",
+        "cart",
+        "rf")){
       mids_out <- mice(data_miss,
                        method = as.vector(cond$method),
                        m = parms$mice_ndt,

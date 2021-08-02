@@ -77,6 +77,7 @@
                 "norm", # bridge
                 "pcr.boot",
                 "cart", "rf",
+                "norm.optimal",
                 "OG", "cca")
   }
   if(parms$goal == "conv_check"){
@@ -86,6 +87,7 @@
                 "blasso",
                 "norm", # bridge
                 "pcr.boot",
+                "norm.optimal",
                 "cart", "rf")
   }
 
