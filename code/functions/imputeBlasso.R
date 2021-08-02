@@ -87,8 +87,7 @@ imputeBlasso <- function(Z, m, maxit){
         # cc <- 1
         # Initialize data per chain
         Zm <- initializeImp(Z_mm)
-        for(j in 1:target_n){
-          J <- which(colnames(Zm) %in% target_id[j])
+        for(J in target_id){
           wy <- !O[, J]
           chainMean[J, 1, cc] <- mean(Zm[wy, J])
           chainVar[J, 1, cc] <- var(Zm[wy, J])

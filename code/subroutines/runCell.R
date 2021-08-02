@@ -27,7 +27,7 @@ runCell <- function(rp, cond, parms, fs) {
 
   if(!cond$method %in% c("OG", "cca")){
     if(cond$method %in% "blasso"){
-      mids_out <- imputeBlasso(boys,
+      mids_out <- imputeBlasso(data_miss,
                                m = parms$blasso_ndt,
                                maxit = parms$blasso_iters)
     } else {
