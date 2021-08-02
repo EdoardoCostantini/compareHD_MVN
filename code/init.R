@@ -58,10 +58,10 @@
   parms$rho_low  <- .1 # correlation for correlated variables
 
   # Imputation Routine
-  parms$mice_ndt <- 5
-  parms$mice_iters <- 25
+  parms$mice_ndt <- 2
+  parms$mice_iters <- 3
   parms$blasso_ndt <- parms$mice_ndt
-  parms$blasso_iters <- 25
+  parms$blasso_iters <- 3
 
   # Storing location
   parms$outDir <- "../output/"
@@ -72,6 +72,7 @@
   pm <- c(.1, .3)
   method <- c("durr.gaus", "iurr.gaus",
               "blasso",
+              "norm", # bridge
               "pcr.boot",
               "mice.impute.cart", "mice.impute.rf",
               "OG", "cca")

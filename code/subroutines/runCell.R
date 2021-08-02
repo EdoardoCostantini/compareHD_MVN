@@ -9,7 +9,7 @@ runCell <- function(rp, cond, parms, fs) {
 # Example Internals -------------------------------------------------------
 
   # rp   = 1
-  # cond = conds[1, ]
+  # cond = conds[22, ]
 
 # Data Generation ---------------------------------------------------------
 
@@ -35,6 +35,8 @@ runCell <- function(rp, cond, parms, fs) {
                        method = as.vector(cond$method),
                        m = parms$mice_ndt,
                        maxit = parms$mice_iters,
+                       ls.meth = "ridge",
+                       ridge   = 1e-3,
                        printFlag = TRUE)
     }
   }
