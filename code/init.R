@@ -45,6 +45,7 @@
   parms$rep_counter <- 0
   parms$seed <- 2021
   parms$nStreams <- 1000
+  parms$goal <- c("simulation", "conv_check")[1]
 
   # Data generation
   parms$n <- 2e2 # sample size
@@ -68,14 +69,25 @@
 
 # Conditions --------------------------------------------------------------
 
-  p   <- c(40, 200)
-  pm <- c(.1, .3)
-  method <- c("durr.gaus", "iurr.gaus",
-              "blasso",
-              "norm", # bridge
-              "pcr.boot",
-              "cart", "rf",
-              "OG", "cca")
+  if(parms$goal == "simulation"){
+    p   <- c(40, 200)
+    pm <- c(.1, .3)
+    method <- c("durr.gaus", "iurr.gaus",
+                "blasso",
+                "norm", # bridge
+                "pcr.boot",
+                "cart", "rf",
+                "OG", "cca")
+  }
+  if(parms$goal == "conv_check"){
+    p   <- c(200)
+    pm <- c(.3)
+    method <- c("durr.gaus", "iurr.gaus",
+                "blasso",
+                "norm", # bridge
+                "pcr.boot",
+                "cart", "rf")
+  }
 
   conds <- expand.grid(p, pm, method)
-    colnames(conds) <- c("p", "pm", "method")
+  colnames(conds) <- c("p", "pm", "method")

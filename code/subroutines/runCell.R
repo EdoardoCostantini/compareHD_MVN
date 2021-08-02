@@ -9,7 +9,7 @@ runCell <- function(rp, cond, parms, fs) {
 # Example Internals -------------------------------------------------------
 
   # rp   = 1
-  # cond = conds[22, ]
+  # cond = conds[9, ]
 
 # Data Generation ---------------------------------------------------------
 
@@ -80,10 +80,18 @@ runCell <- function(rp, cond, parms, fs) {
 # Store Output ------------------------------------------------------------
 
   ## Store Results
-  saveRDS(result,
-          file = paste0(fs$outDir,
-                        "rep_", rp, "_", cond$tag,
-                        ".rds")
-  )
-
+  if(parms$goal == "simulation"){
+    saveRDS(result,
+            file = paste0(fs$outDir,
+                          "rep_", rp, "_", cond$tag,
+                          ".rds")
+    )
+  }
+  if(parms$goal == "conv_check"){
+    saveRDS(mids_out,
+            file = paste0(fs$outDir,
+                          "rep_", rp, "_", cond$tag,
+                          ".rds")
+    )
+  }
 }
