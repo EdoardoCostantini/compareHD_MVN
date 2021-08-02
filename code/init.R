@@ -74,7 +74,7 @@
               "blasso",
               "norm", # bridge
               "pcr.boot",
-              "mice.impute.cart", "mice.impute.rf",
+              "cart", "rf",
               "OG", "cca")
 
   conds <- expand.grid(p, pm, method)
