@@ -11,11 +11,11 @@ amputePerVar <- function(data, targets, preds, pm = .5, type = "high"){
   # It returns the variables in targets with missing values imposed.
   ## Example Inputs
   # cond = conds[1, ]
-  data = dataGen(parms = parms, cond = cond)
-  targets = parms$vmap_miss$ta
-  preds = parms$vmap_miss$mp
-  pm = .5
-  type = "high"
+  # data = dataGen(parms = parms, cond = cond)
+  # targets = parms$vmap_miss$ta
+  # preds = parms$vmap_miss$mp
+  # pm = .5
+  # type = "high"
 
   ## Body
   preds_object <- model.matrix(
