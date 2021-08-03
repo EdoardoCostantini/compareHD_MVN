@@ -2,7 +2,7 @@
 # Objective: initialization script
 # Author:    Edoardo Costantini
 # Created:   2021-07-30
-# Modified:  2021-07-30
+# Modified:  2021-08-03
 
 # Packages ----------------------------------------------------------------
 
@@ -41,7 +41,7 @@
   parms    <- list()
 
   # Simulation
-  parms$rps <- 1e3
+  parms$rps <- 3 # 1e3
   parms$rep_counter <- 0
   parms$seed <- 2021
   parms$nStreams <- 1000
@@ -93,3 +93,9 @@
 
   conds <- expand.grid(p, pm, method)
   colnames(conds) <- c("p", "pm", "method")
+
+  # Append Condition Tag
+  conds$tag <- sapply(1:nrow(conds), function(i) {
+    paste0(colnames(conds), conds[i, ], collapse = "_")
+  }
+  )
