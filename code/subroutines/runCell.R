@@ -9,7 +9,7 @@ runCell <- function(rp, cond, parms, fs) {
 # Example Internals -------------------------------------------------------
 
   # rp   = 1
-  # cond = conds[9, ]
+  # cond = conds[6, ]
 
 # Data Generation ---------------------------------------------------------
 
@@ -56,9 +56,12 @@ runCell <- function(rp, cond, parms, fs) {
                        method = as.vector(cond$method),
                        m = parms$mice_ndt,
                        maxit = parms$mice_iters,
+                       printFlag = TRUE,
+                       # Bypass linear dependency check
+                       eps = 0,
+                       # Argument used only by norm method
                        ls.meth = "ridge",
-                       ridge   = 1e-3,
-                       printFlag = TRUE)
+                       ridge   = 1e-3)
     }
   }
 
