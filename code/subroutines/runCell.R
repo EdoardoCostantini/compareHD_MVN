@@ -2,7 +2,7 @@
 # Objective: subroutine runCell a single condition for a single repetition
 # Author:    Edoardo Costantini
 # Created:   2021-07-30
-# Modified:  2021-07-30
+# Modified:  2021-08-03
 
 runCell <- function(rp, cond, parms, fs) {
 
@@ -80,7 +80,7 @@ runCell <- function(rp, cond, parms, fs) {
   } else {
     # Are we doing OG or cca?
     if(cond$method %in% "OG"){
-      data_noMI <- data_original
+      data_noMI <- data_OG
     } else {
       data_noMI <- na.omit(data_miss)
     }
