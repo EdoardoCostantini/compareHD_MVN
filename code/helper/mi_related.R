@@ -26,3 +26,23 @@ miDf <- function(m, b, t, dfCom) {
 
   df0 / (1 + (df0 / dfObs))
 }
+
+fisher_z <- function(x){
+  # Transformation of correlation to fisher Z pre-pooling
+  .5 * log((1+x) / (1-x))
+}
+
+fisher_z_inv <- function(Z_bar){
+  # Back transformation of fisher Z after pooling
+  (exp(2 * Z_bar) - 1) / (exp(2 * Z_bar) + 1)
+}
+
+poolCI <- function (m, N, Q_bar, B, T_var){
+  # Pool confidence intervals for a normally distributed estimate
+  nu_com <- N - length(Q_bar) # n - k where k number of paramteres estimated
+  nu <- miDf(m, b = B, t = T_var, nu_com) # Degrees of freedom
+  t_nu <- qt(1 - (1-.95)/2, df = nu) # critical value
+  CI <- data.frame(lwr = Q_bar - t_nu * sqrt(T_var),
+                   upr = Q_bar + t_nu * sqrt(T_var))
+  return(CI)
+}

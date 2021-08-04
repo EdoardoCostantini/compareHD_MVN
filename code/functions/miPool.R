@@ -17,40 +17,93 @@ miPool <- function(mi_fits, m, N){
   # N = parms$n
 
   ## Pool estiamtes
-  ests <- lapply(mi_fits, function(x) {
-    est_all <- parameterEstimates(x, standardized = TRUE)
-    est <- est_all[, c("est", "std.all")]
-    rownames(est) <- apply(est_all[, 1:3], 1, paste0, collapse = "")
-    return(est)
+  # Create Indeces vectors for the parameters
+  est <- parameterEstimates(mi_fits[[1]])
+  par_names <- apply(est[, 1:3], 1, paste0, collapse = "")
+  indx_avg <- est$op == "~1"
+  indx_var <- est$lhs == est$rhs
+  indx_cor <- est$op == "~~" & est$lhs != est$rhs
+
+  #### Means ####
+  est_avg <- sapply(mi_fits, function(x) {
+    est <- parameterEstimates(x)
+    return(est = est[indx_avg, "est"])
   })
 
-  ests_both <- do.call(cbind, ests)
-  coefs_raw <- as.matrix(ests_both[, grep("est", colnames(ests_both))])
-  coefs_std <- ests_both[, grep("std.all", colnames(ests_both))]
-  Q_bar <- rowMeans(coefs_raw)
-  Q_bar_std <- rowMeans(coefs_std)
+  # Pool estimates
+  Q_bar <- rowMeans(est_avg)
 
-  ## Pool Confidence Intervals
+  # Pool Confidence Intervals
   all_vcov <- lapply(X = mi_fits, vcov)
-  U_bar <- diag(Reduce('+', all_vcov) / m)
-  B <- diag(1 / (m-1) * (coefs_raw - Q_bar) %*% t(coefs_raw - Q_bar))
+  U_bar <- diag(Reduce('+', all_vcov) / m)[indx_avg]
+  B <- diag(1 / (m-1) * (est_avg - Q_bar) %*% t(est_avg - Q_bar))
   T_var <- U_bar + B + B/m
+  CI <- poolCI(m, N, Q_bar, B, T_var)
+
+  # FMI and RIV
+  fmi_out <- fmi(m = m, b = B, t = T_var)
+  riv_out <- riv(m = m, b = B, u = U_bar)
+
+  # Put together
+  res_avg <- cbind(Q_bar = Q_bar, CI,
+                   fmi = fmi_out, riv = riv_out)
+
+  #### Variances ####
+  est_var <- sapply(mi_fits, function(x) {
+    est <- parameterEstimates(x)
+    return(est[indx_var, "est"])
+  })
+
+  # Pool estimates
+  Q_bar <- rowMeans(est_var)
+
+  # Pool Confidence Intervals
+  U_bar <- diag(Reduce('+', all_vcov) / m)[indx_var]
+  B <- diag(1 / (m-1) * (est_var - Q_bar) %*% t(est_var - Q_bar))
+  T_var <- U_bar + B + B/m
+  CI <- poolCI(m, N, Q_bar, B, T_var)
+
+  # FMI and RIV
+  fmi_out <- fmi(m = m, b = B, t = T_var)
+  riv_out <- riv(m = m, b = B, u = U_bar)
+
+  # Put together
+  res_var <- cbind(Q_bar = Q_bar, CI,
+                   fmi = fmi_out, riv = riv_out)
+
+  #### Correlations ####
+  est_cor <- sapply(mi_fits, function(x) {
+    est <- standardizedSolution(x)
+    return(est[indx_cor, "est.std"])
+  })
+
+  # Transform before pooling
+  est_cor_z <- fisher_z(est_cor)
+
+  # Pool
+  z_bar <- rowMeans(est_cor_z)
+  z_U <- 1/(N-3)
+  B <- diag(1 / (m-1) * (est_cor_z - z_bar) %*% t(est_cor_z - z_bar))
+  T_var <- z_U + B + B/m
 
   # Degrees of freedom and FMI
-  fmi_out <- fmi(m = length(mi_fits), b = B, t = T_var)
-  riv_out <- riv(m = length(mi_fits), b = B, u = U_bar)
-  nu_com <- N - length(Q_bar) # n - k where k number of paramteres estimated
-  nu <- miDf(length(mi_fits), b = B, t = T_var, nu_com)
+  fmi_out <- fmi(m = m, b = B, t = T_var)
+  riv_out <- riv(m = m, b = B, u = z_U)
+  nu_com <- N - length(z_bar) # n - k where k number of paramteres estimated
+  nu <- miDf(m, b = B, t = T_var, nu_com)
 
   # CI computation
   t_nu <- qt(1 - (1-.95)/2, df = nu)
-  CI <- data.frame(lwr = Q_bar - t_nu * sqrt(T_var),
-                   upr = Q_bar + t_nu * sqrt(T_var))
+  CI <- data.frame(lwr = z_bar - t_nu * sqrt(T_var),
+                   upr = z_bar + t_nu * sqrt(T_var))
+  res_z <- cbind(Q_bar = z_bar, CI)
 
-  ## Store
-  pooled <- cbind(names(Q_bar), Q_bar_std, Q_bar, CI, fmi_out, riv_out)
-  colnames(pooled) <- c("par", "std.all", "est", "ci.lower", "ci.upper",
-                        "fmi", "riv")
+  # Backtransform to correlations
+  res_cor <- cbind(fisher_z_inv(res_z), fmi = fmi_out, riv = riv_out)
+
+  #### Store ####
+  pooled <- cbind(par = par_names, rbind(res_avg, res_var, res_cor))
+  rownames(pooled) <- NULL
 
   return(pooled)
 }

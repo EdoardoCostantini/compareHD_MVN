@@ -10,7 +10,7 @@ satModWrite <- function(var_id){
   # the model description that estiamtes the mean, variance, and covariance
   # of all variables (when given to a lavaan::sem() function
   ## Example input:
-  # var_id <- paste0("z", parms$varMap_items$ta)
+  # var_id <- paste0("z", parms$vmap_miss$ta)
 
   # Means
   head_means <- "# Means\n"
