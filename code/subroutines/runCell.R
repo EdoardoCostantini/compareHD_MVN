@@ -89,10 +89,14 @@ runCell <- function(rp, cond, parms, fs) {
                              model = satModWrite(names(data_noMI[,
                                                          parms$vmap_miss$ta]))
       )[[1]]
-      og_est_all <- parameterEstimates(og_sat_fit, standardized = TRUE)
-      og_est <- og_est_all[, c("std.all", "est", "ci.lower", "ci.upper")]
-      result <- cbind(par = apply(og_est_all[, 1:3], 1, paste0, collapse = ""),
-                      og_est,
+      og_mv <- parameterEstimates(og_sat_fit)
+        par_names <- apply(og_mv[, 1:3], 1, paste0, collapse = "")
+        indx_cor <- og_mv$op == "~~" & og_mv$lhs != og_mv$rhs
+        og_mv <- og_mv[!indx_cor, c("est", "ci.lower", "ci.upper")]
+      og_cor <- standardizedSolution(og_sat_fit)[indx_cor, c("est.std", "ci.lower", "ci.upper")]
+        colnames(og_cor) <- colnames(og_mv)
+      result <- cbind(par = par_names,
+                      rbind(og_mv, og_cor),
                       fmi = NA,
                       riv = NA)
   }

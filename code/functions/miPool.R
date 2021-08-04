@@ -45,7 +45,7 @@ miPool <- function(mi_fits, m, N){
   riv_out <- riv(m = m, b = B, u = U_bar)
 
   # Put together
-  res_avg <- cbind(Q_bar = Q_bar, CI,
+  res_avg <- cbind(est = Q_bar, CI,
                    fmi = fmi_out, riv = riv_out)
 
   #### Variances ####
@@ -68,7 +68,7 @@ miPool <- function(mi_fits, m, N){
   riv_out <- riv(m = m, b = B, u = U_bar)
 
   # Put together
-  res_var <- cbind(Q_bar = Q_bar, CI,
+  res_var <- cbind(est = Q_bar, CI,
                    fmi = fmi_out, riv = riv_out)
 
   #### Correlations ####
@@ -85,18 +85,13 @@ miPool <- function(mi_fits, m, N){
   z_U <- 1/(N-3)
   B <- diag(1 / (m-1) * (est_cor_z - z_bar) %*% t(est_cor_z - z_bar))
   T_var <- z_U + B + B/m
+  CI <- poolCI(m, N, z_bar, B, T_var)
 
   # Degrees of freedom and FMI
   fmi_out <- fmi(m = m, b = B, t = T_var)
   riv_out <- riv(m = m, b = B, u = z_U)
-  nu_com <- N - length(z_bar) # n - k where k number of paramteres estimated
-  nu <- miDf(m, b = B, t = T_var, nu_com)
 
-  # CI computation
-  t_nu <- qt(1 - (1-.95)/2, df = nu)
-  CI <- data.frame(lwr = z_bar - t_nu * sqrt(T_var),
-                   upr = z_bar + t_nu * sqrt(T_var))
-  res_z <- cbind(Q_bar = z_bar, CI)
+  res_z <- cbind(est = z_bar, CI)
 
   # Backtransform to correlations
   res_cor <- cbind(fisher_z_inv(res_z), fmi = fmi_out, riv = riv_out)

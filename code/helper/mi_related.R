@@ -42,7 +42,7 @@ poolCI <- function (m, N, Q_bar, B, T_var){
   nu_com <- N - length(Q_bar) # n - k where k number of paramteres estimated
   nu <- miDf(m, b = B, t = T_var, nu_com) # Degrees of freedom
   t_nu <- qt(1 - (1-.95)/2, df = nu) # critical value
-  CI <- data.frame(lwr = Q_bar - t_nu * sqrt(T_var),
-                   upr = Q_bar + t_nu * sqrt(T_var))
+  CI <- data.frame(ci.lower = Q_bar - t_nu * sqrt(T_var),
+                   ci.upper = Q_bar + t_nu * sqrt(T_var))
   return(CI)
 }
