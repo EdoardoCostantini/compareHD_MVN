@@ -29,7 +29,7 @@ out_ggready %>%
   summarize(EQ_bar = mean(est),
             ref = mean(ref_est)) %>%
   mutate(RB = EQ_bar - ref,
-         PB = 100 * abs(EQ_bar - ref)/ref) %>%
+         PB = 100 * abs((EQ_bar - ref)/ref)) %>%
   # Plot
   ggplot(aes(x = method,
              y = PB)) +
