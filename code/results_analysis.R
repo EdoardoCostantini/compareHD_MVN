@@ -17,7 +17,7 @@ met_cond <- paste0(unique(gg_shape$method)[-9], # which methods to plot
                    collapse = "|")
 col_plot <- which(colnames(out_ggready)
                     %in%
-                    c("est", "ref_est"))
+                    c("est", "ref"))
 
 out_ggready %>%
   # Subset
@@ -27,7 +27,7 @@ out_ggready %>%
   # Compute Bias
   group_by(p, pm, par, method) %>%
   summarize(EQ_bar = mean(est),
-            ref = mean(ref_est)) %>%
+            ref = mean(ref)) %>%
   mutate(RB = EQ_bar - ref,
          PB = 100 * abs((EQ_bar - ref)/ref)) %>%
   # Plot
@@ -76,7 +76,7 @@ met_cond <- paste0(unique(gg_shape$method), # which methods to plot
                    collapse = "|")
 col_plot <- which(colnames(out_ggready)
                     %in%
-                    c("est", "ref_est"))
+                    c("est", "ref"))
 
 out_ggready %>%
   # Subset
