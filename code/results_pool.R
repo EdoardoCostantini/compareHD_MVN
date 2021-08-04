@@ -24,22 +24,24 @@ source("./init.R")
   gg_shape <- reshape2::melt(out, id.var = colnames(out)[1:6])
 
 # Add reference value and coverage
-
-  true_vec <- out %>%
+  ref <- out %>%
     # Subset
     filter(grepl("OG", method)) %>%
     group_by(p, pm, par) %>%
-    summarize(ref = mean(est))
+    summarize(ref_est = mean(est),
+              ref_std = mean(std.all))
 
-  out_augmented <- merge(out, true_vec, by = c("pm", "p", "par"))
-  out_augmented_sc <- out_augmented[, c(colnames(out), "ref")]
-  out_augmented_sc$par <- factor(out_augmented_sc$par,
+  out_plus <- merge(out, ref, by = c("pm", "p", "par"))
+  out_plus_sc <- out_plus[, c(colnames(out), "ref_est", "ref_std")]
+  out_plus_sc$par <- factor(out_plus_sc$par,
                                  levels = unique(out$par))
-  output_sr <- out_augmented_sc %>% arrange(rp, p, pm, method, par)
+  out_sr <- out_plus_sc %>% arrange(rp, p, pm, method, par)
 
 # Add coverage
-  output_sr <- output_sr %>%
-    mutate(CIC = ci.lower < ref & ref < ci.upper)
+  out_ggready <- out_sr %>%
+    mutate(CIC = ci.lower < ref_est & ref_est < ci.upper)
 
 # Shape for plots
-  gg_shape <- reshape2::melt(output_sr, id.var = colnames(out)[1:6])
+  gg_shape <- reshape2::melt(out_ggready, id.var = colnames(out)[1:6])
+  head(gg_shape)
+  head(out_ggready)

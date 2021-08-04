@@ -41,7 +41,7 @@
   parms    <- list()
 
   # Simulation
-  parms$rps <- 3 # 1e3
+  parms$rps <- 10 # 1e3
   parms$rep_counter <- 0
   parms$seed <- 2021
   parms$nStreams <- 1000

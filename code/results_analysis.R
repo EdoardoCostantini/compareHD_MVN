@@ -2,55 +2,92 @@
 # Objective: Script to plot the results of the simulation
 # Author:    Edoardo Costantini
 # Created:   2021-07-30
-# Modified:  2021-08-03
+# Modified:  2021-08-04
 
-# Load Results ----------------------------------------------------------
+# barplots ----------------------------------------------------------------
 
-  # inDir <- "../output/"
-  # runName <- "20210727_170009"
-  #
-  # # Read output
-  # gg_shape <- readRDS(paste0(inDir, runName, "_res.rds"))
-  #
-  # # Support Functions
-  # source("init.R")
+# Define plot input
+col_cond <- 1:6 # fixed columns that describe conditions
+estimand <- unique(gg_shape$par)[1] # what parameter to plot
+y_cond <- unique(gg_shape$pm)
+x_cond <- unique(gg_shape$p)
 
-# Plots -------------------------------------------------------------------
+# Bias
+met_cond <- paste0(unique(gg_shape$method)[-9], # which methods to plot
+                   collapse = "|")
+col_plot <- which(colnames(out_ggready)
+                    %in%
+                    c("est", "ref_est"))
 
-  ## Obtain plots
-  parm <- unique(gg_shape$par)[1] # what parameter to plot
-  result <- unique(gg_shape$variable)[2] # what result to plot
-  met_cond <- paste0(unique(gg_shape$method),
-                     collapse = "|")
-  y_cond <- unique(gg_shape$pm)
-  x_cond <- unique(gg_shape$p)
+out_ggready %>%
+  # Subset
+  select(colnames(out_ggready)[c(col_cond, col_plot)]) %>%
+  filter(grepl(estimand, par)) %>%
+  filter(grepl(met_cond, method)) %>%
+  # Compute Bias
+  group_by(p, pm, par, method) %>%
+  summarize(EQ_bar = mean(est),
+            ref = mean(ref_est)) %>%
+  mutate(RB = EQ_bar - ref,
+         PB = 100 * abs(EQ_bar - ref)/ref) %>%
+  # Plot
+  ggplot(aes(x = method,
+             y = PB)) +
+  geom_bar(stat = "identity") +
+  facet_grid(rows = vars(factor(p,
+                                labels = paste0("pm = ", y_cond))),
+             cols = vars(factor(pm,
+                                labels = paste0("p = ", x_cond))))
 
-  plot1 <- gg_shape %>%
-    # Subset
-    filter(grepl(parm, par)) %>%
-    filter(grepl(met_cond, method)) %>%
-    filter(grepl(result, variable)) %>%
+# Confidence Interval Coverage
+met_cond <- paste0(unique(gg_shape$method), # which methods to plot
+                   collapse = "|")
+col_plot <- which(colnames(out_ggready)
+                    %in%
+                    "CIC")
 
-    # Main Plot
-    ggplot(aes(x = variable,
-               y = value,
-               group = method,
-               fill = method)) +
-    geom_boxplot() +
+out_ggready %>%
+  # Subset
+  select(colnames(out_ggready)[c(col_cond, col_plot)]) %>%
+  filter(grepl(estimand, par)) %>%
+  filter(grepl(met_cond, method)) %>%
+  # Compute Bias
+  group_by(p, pm, par, method) %>%
+  summarize(CIC = mean(CIC)) %>%
+  # Plot
+  ggplot(aes(x = method,
+             y = CIC)) +
+  geom_bar(stat = "identity") +
+  facet_grid(rows = vars(factor(p,
+                                labels = paste0("pm = ", y_cond))),
+             cols = vars(factor(pm,
+                                labels = paste0("p = ", x_cond))))
 
-    # Grid
-    facet_grid(rows = vars(factor(p,
-                                  labels = paste0("pm = ", y_cond))),
-               cols = vars(factor(pm,
-                                  labels = paste0("p = ", x_cond)))) +
-    # Format
-    theme(text = element_text(size = 15),
-          plot.title = element_text(hjust = 0.5),
-          axis.text = element_text(size = 10),
-          axis.text.x = element_blank(),
-          axis.title = element_text(size = 15)) +
-    labs(title = paste0(result, " for ", parm),
-         x     = NULL,
-         y     = NULL)
+# boxplots ----------------------------------------------------------------
 
-  plot1
+# Define plot input
+col_cond <- 1:6 # fixed columns that describe conditions
+estimand <- unique(gg_shape$par)[1] # what parameter to plot
+y_cond <- unique(gg_shape$pm)
+x_cond <- unique(gg_shape$p)
+
+# Bias
+met_cond <- paste0(unique(gg_shape$method), # which methods to plot
+                   collapse = "|")
+col_plot <- which(colnames(out_ggready)
+                    %in%
+                    c("est", "ref_est"))
+
+out_ggready %>%
+  # Subset
+  select(colnames(out_ggready)[c(col_cond, col_plot)]) %>%
+  filter(grepl(estimand, par)) %>%
+  filter(grepl(met_cond, method)) %>%
+  # Plot
+  ggplot(aes(x = method,
+             y = est)) +
+  geom_boxplot() +
+  facet_grid(rows = vars(factor(p,
+                                labels = paste0("pm = ", y_cond))),
+             cols = vars(factor(pm,
+                                labels = paste0("p = ", x_cond))))
